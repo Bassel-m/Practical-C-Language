@@ -1,0 +1,318 @@
+/*
+ * =================================================================== *
+ * Author: Bassel A. Mohammed                                          * 
+ *                                                                     *
+ * Copyright: GPL General Public License                               *
+ *                                                                     *
+ * content: Interface for 4 programs about memory management using C   *
+ *                                                                     *
+ * Version: 1.0                                                        *
+ *                                                                     *
+ * Thanks to CS50 and Stanford Portable Library                        *
+ *                                                                     *
+ * =================================================================== *
+ */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <windows.h>
+#define PACKAGE "crlock"
+
+
+// Stanford Portable Library
+#include <spl/gevents.h>
+#include <spl/ginteractors.h>
+#include <spl/gwindow.h>
+#include <spl/gobjects.h>
+
+
+void fcfsD(void);
+void fcfsC(void);
+
+    void display();
+    void getdata();
+    void waittime();
+    void turnaroundtime();
+    int n, a[100], b[100];
+    
+void filelock(void);
+void dynamic(void);
+
+int main(void)
+{
+    // instantiate window
+    GWindow window = newGWindow(640, 480);
+    
+    //Background
+    GImage tree = newGImage("dk.jpg");
+    double x = (getWidth(window) - getWidth(tree)) / 2;
+    double y = (getHeight(window) - getHeight(tree)) / 2;
+    add(window, tree, x, y);
+    
+    //Head Line
+    GLabel label5 = newGLabel("Practical Operating System Using C Language");
+    setFont(label5, "SansSerif-25");
+    add(window, label5);
+    setLocation(label5, 35, 50);
+    setColor(label5, "white");
+    
+    
+    
+    
+    //My Signature
+    GLabel label6 = newGLabel("By: Bassel A. Mohammed      Section: 2      Registration No. 5");
+    setFont(label6, "SansSerif-18");
+    add(window, label6);
+    setLocation(label6, 35, 430);
+    setColor(label6, "white");
+
+
+    //Button 1
+    GButton button1 = newGButton("FCFS CPU");
+    setActionCommand(button1, "click1");
+    add(window, button1);
+    setLocation(button1, 20, 340);
+    GLabel label1 = newGLabel("");
+    setFont(label1, "SansSerif-15");
+    add(window, label1);
+    setLabel(label1, "1- FCFS CPU Scheduling Algorithm");
+    setLocation(label1, 70, 120);
+    
+    //Button 2
+    GButton button2 = newGButton("Allocate memory");
+    setActionCommand(button2, "click2");
+    add(window, button2);
+    setLocation(button2, 160, 340);
+    GLabel label2 = newGLabel("");
+    setFont(label2, "SansSerif-15");
+    add(window, label2);
+    setLabel(label2, "2- Allocate Memory Dynamically");
+    setLocation(label2, 70, 150);
+    
+    //Button 3
+    GButton button3 = newGButton("File Lock");
+    setActionCommand(button3, "click3");
+    add(window, button3);
+    setLocation(button3, 360, 340);
+    GLabel label3 = newGLabel("");
+    setFont(label3, "SansSerif-15");
+    add(window, label3);
+    setLabel(label3, "3- File Locking");
+    setLocation(label3, 70, 180);
+    
+    //Button 4
+    GButton button4 = newGButton("FCFS Disk");
+    setActionCommand(button4, "click4");
+    add(window, button4);
+    setLocation(button4, 520, 340);
+    GLabel label4 = newGLabel("");
+    setFont(label4, "SansSerif-15");
+    add(window, label4);
+    setLabel(label4, "4- FCFS Disk Scheduling Algorithm");
+    setLocation(label4, 70, 210);
+    
+    // listen for events
+    while (true)
+    {
+        // wait for event
+        GActionEvent event = waitForEvent(ACTION_EVENT);
+
+        // if window was closed
+        if (getEventType(event) == WINDOW_CLOSED)
+        {
+            break;
+        }
+
+        // if action command is "click"
+        if (strcmp(getActionCommand(event), "click1") == 0)
+        {
+            printf("------ FCFS Scheduling Algorithm ------\n\n");
+            fcfsC();
+        }
+        if (strcmp(getActionCommand(event), "click2") == 0)
+        {
+            printf("------ Allocate Memory Dynamically ------\n\n");
+            dynamic();
+        }
+        if (strcmp(getActionCommand(event), "click3") == 0)
+        {
+            printf("------ File Locking ------\n\n");
+            filelock();
+            
+        }
+        if (strcmp(getActionCommand(event), "click4") == 0)
+        {
+            printf("------ FCFS Disk Scheduling ------\n\n");
+            fcfsD();
+        }
+    }
+
+    // that's all folks
+    closeGWindow(window);
+    return 0;
+}
+
+void fcfsD(void)
+{
+    int a[20],n,i,t = 0;
+    printf("Enter Head Pointer Position: ");
+    scanf("%d", &a[0]);
+    printf("\nEnter number of processes: ");
+    scanf("%d", &n);
+    printf("\nEnter processes in request order: \n");
+    for (i = 1; i <= n; i++)
+    {
+        scanf("%d", &a[i]);
+    }
+    for (i = 0; i < n; i++)
+    {
+        if (a[i] < a[i + 1])
+        {
+            t += (a[i + 1] - a[i]);
+        }
+        else
+        {
+            t += (a[i] - a[i +1]);
+        }
+    }
+    printf("\nProcessing order: \n");
+    for (i = 0; i <= n; i++)
+        printf("\t%d", a[i]);
+    printf("\nTotal head movement: %d\n", t);
+    printf("\n");
+}
+
+void fcfsC(void)
+{ 
+    getdata();
+    display();
+    waittime();
+    turnaroundtime();
+}
+
+void getdata(void)
+{
+    char c;
+    int i;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    printf("\nDo you need to enter the arrival time of process [y/n] ? ");
+    scanf("%s", &c);
+    for (i = 0; i < n; i++)
+    {
+        printf("Enter the %d Process burst time: ", i+1);
+        scanf("%d", &b[i]);
+        if (c == 'y' || c == 'Y')
+        {
+            printf("Enter the %d process arrival time: ", i+1);
+            scanf("%d", &a[i]);
+        }
+        else
+        {
+            a[i] = 0;
+        }
+    }
+}
+
+void display(void)
+{
+    int i;
+    printf("\nProcess\tBurst time\tArrival time\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\t   %d\t   %d\n", i+1, b[i], a[i]);
+    }
+}
+
+void waittime(void)
+{
+    int w[100];
+    int i;
+    float totalwait = 0;
+    w[0] = 0;
+    for (i = 1; i < n; i++)
+    {
+        w[i] = b[i -1] - a[i] + w[i - 1];
+        totalwait = w[i] + totalwait;
+    }
+    printf("\nTotal waiting time = %f", totalwait);
+    printf("\nAverage waiting time = %f", totalwait * 1.0 / n);
+}
+
+void turnaroundtime(void)
+{
+    int tat[100];
+    int i;
+    float totaltat = 0;
+    tat[1] = 0;
+    for (i = 0; i < n; i++)
+    {
+        tat[i] = b[i] - a[i] + tat[i-1];
+        totaltat = totaltat + tat[i];
+    }
+    printf("\n\nTotal turn around time (TAT) = %f", totaltat);
+    printf("\nAverage turn around time (Avg. TAT) = %f", totaltat * 1.0 / n);
+    printf("\n");
+}
+
+void filelock(void)
+{
+    
+        int fd = 0;
+        int i = 5;
+        for(; i > 0 ; i--)     
+        {
+            if((fd = open("locked.file", O_RDWR|O_CREAT|O_EXCL, 444)) == -1)
+            {
+                fprintf(stderr,"%s[%d]: Error - file already locked ...\n",PACKAGE, getpid());
+                Sleep(2000);
+            }
+            else
+            {
+                 printf(stdout,"%s[%d]: Now I am the only one with access :-)\n",PACKAGE, getpid());
+                 Sleep(2000);
+                 close(fd);
+                 unlink("locked.file");
+                 Sleep(1000);
+            }
+        }
+    
+}
+
+void dynamic(void)
+{
+    
+        char name[100];
+        char *description;
+        strcpy(name, "Bassel");
+        description = malloc( 200 * sizeof(char) );
+        if( description == NULL )
+        {
+            fprintf(stderr, "Error - unable to allocate required memory\n");
+        }
+        else
+        {
+        strcpy( description, "Bassel A. Mohammed");
+        }
+        printf("Name: %s\n", name );
+        printf("Description: %s\n", description );
+    
+}
+
+
+
+
+
+
+
+
+
+ 
